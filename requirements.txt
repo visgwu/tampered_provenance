@@ -1,1 +1,1 @@
-@art-ws/eslint@1.0.5
+@art-ws/fastify-http-server@2.0.23
