@@ -1,1 +1,1 @@
-@crowdstrike/foundry-js@0.19.1
+@crowdstrike/glide-core@0.34.1
