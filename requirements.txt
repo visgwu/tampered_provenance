@@ -1,1 +1,1 @@
-@art-ws/fastify-http-server@2.0.23
+@art-ws/fastify-http-server@2.0.28
