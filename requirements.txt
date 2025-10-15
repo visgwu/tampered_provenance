@@ -1,1 +1,1 @@
-@art-ws/common@2.0.21
+@art-ws/common@2.0.27
