@@ -1,1 +1,1 @@
-@art-ws/config-eslint@2.0.3
+@art-ws/config-eslint@2.0.4
