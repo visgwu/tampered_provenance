@@ -1,1 +1,1 @@
-@art-ws/slf@2.0.22
+@art-ws/ssl-info@1.0.9
