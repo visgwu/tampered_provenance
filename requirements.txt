@@ -1,1 +1,1 @@
-@basic-ui-components-stc/basic-ui-components@1.0.5
+@crowdstrike/commitlint@8.1.1
