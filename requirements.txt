@@ -1,1 +1,1 @@
-@art-ws/slf@2.0.14
+@art-ws/slf@2.0.21
