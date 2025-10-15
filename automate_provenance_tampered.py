@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-# Load 500 package names from your file
+# Load 50 package names from your file
 with open('tampered_package_names.txt', 'r') as f:
     packages = [line.strip() for line in f if line.strip()]
 
