@@ -1,1 +1,1 @@
-@art-ws/di-node@2.0.12
+@art-ws/eslint@1.0.4
