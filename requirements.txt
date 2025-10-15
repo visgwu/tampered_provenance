@@ -1,1 +1,1 @@
-@art-ws/di@2.0.32
+@art-ws/di-node@2.0.13
