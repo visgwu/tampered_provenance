@@ -1,1 +1,1 @@
-@ahmedhfarag/ngx-virtual-scroller@4.0.4
+@art-ws/common@2.0.22
