@@ -1,1 +1,1 @@
-@art-ws/eslint@1.0.4
+@art-ws/eslint@1.0.5
