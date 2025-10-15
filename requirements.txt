@@ -1,1 +1,1 @@
-@art-ws/prettier@1.0.4
+@art-ws/prettier@1.0.5
