@@ -1,1 +1,1 @@
-@art-ws/db-context@2.0.23
+@art-ws/di@2.0.27
