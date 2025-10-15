@@ -1,8 +1,10 @@
 name: Build & Generate Provenance
+
 on:
   push:
     tags:
       - 'v*.*.*'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,20 +18,82 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Node.js (for npm)
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.8'
+          node-version: '20' # or 18/22 as needed
 
-      - name: Install dependencies
+      # Installs each tampered package into its own temp dir (no lifecycle scripts),
+      # records results, and optionally fails the build if any install fails.
+      - name: Install tampered npm packages (isolated, no scripts)
+        id: npm_install
+        shell: bash
+        env:
+          # set to "true" to fail the job if any install fails; "false" to continue
+          FAIL_ON_ERROR: "true"
         run: |
-          pip install -r requirements.txt
+          set -Eeuo pipefail
 
-      - name: Archive web application
+          LIST="tampered_package_names.txt"
+          if [[ ! -s "$LIST" ]]; then
+            echo "Missing $LIST at repo root."
+            exit 1
+          fi
+
+          mkdir -p dist
+          : > dist/npm-install.log
+          : > dist/npm-install-results.jsonl
+
+          echo "Starting isolated installs with --ignore-scripts..."
+          failures=0
+          successes=0
+
+          while IFS= read -r pkg || [[ -n "$pkg" ]]; do
+            [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
+
+            echo "Installing $pkg ..." | tee -a dist/npm-install.log
+            tmpd="$(mktemp -d)"
+            pushd "$tmpd" >/dev/null
+
+            npm init -y >/dev/null 2>&1 || true
+            if npm install "$pkg" --ignore-scripts --no-audit --no-fund --silent; then
+              if npm ls "$pkg" --depth=0 --silent >/dev/null 2>&1; then
+                echo "{\"package\":\"$pkg\",\"status\":\"installed\"}" >> "$GITHUB_WORKSPACE/dist/npm-install-results.jsonl"
+                echo "✅ $pkg" | tee -a "$GITHUB_WORKSPACE/dist/npm-install.log"
+                ((successes++))
+              else
+                echo "{\"package\":\"$pkg\",\"status\":\"verify_failed\"}" >> "$GITHUB_WORKSPACE/dist/npm-install-results.jsonl"
+                echo "❌ verify failed: $pkg" | tee -a "$GITHUB_WORKSPACE/dist/npm-install.log"
+                ((failures++))
+              fi
+            else
+              echo "{\"package\":\"$pkg\",\"status\":\"install_failed\"}" >> "$GITHUB_WORKSPACE/dist/npm-install-results.jsonl"
+              echo "❌ install failed: $pkg" | tee -a "$GITHUB_WORKSPACE/dist/npm-install.log"
+              ((failures++))
+            fi
+
+            popd >/dev/null
+            rm -rf "$tmpd"
+          done < "$LIST"
+
+          echo "Successes: $successes, Failures: $failures" | tee -a dist/npm-install.log
+
+          # Expose counts as outputs (optional)
+          echo "successes=$successes" >> "$GITHUB_OUTPUT"
+          echo "failures=$failures" >> "$GITHUB_OUTPUT"
+
+          # Decide whether to fail the build
+          if [[ "$FAIL_ON_ERROR" == "true" && $failures -gt 0 ]]; then
+            echo "One or more installs failed."
+            exit 1
+          fi
+
+      - name: Archive analysis artifacts
         run: |
           mkdir -p dist
-          cp -r requirements.txt dist/
-          cd dist && zip -r mybinary.zip . && cd ..
+          cp tampered_package_names.txt dist/
+          # add any other analysis outputs you want to preserve
+          (cd dist && zip -r mybinary.zip .)
 
       - name: Generate base64-encoded SHA256 hash
         id: hash
@@ -41,7 +105,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-web-app
+          name: npm-analysis-artifacts
           path: dist/mybinary.zip
 
   provenance:
@@ -54,4 +118,4 @@ jobs:
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"
       upload-assets: false
-      provenance-name: provenance.intoto.jsonl       
+      provenance-name: provenance.intoto.jsonl
