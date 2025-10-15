@@ -8,7 +8,7 @@ with open('tampered_package_names.txt', 'r') as f:
 base_branch = 'main'
 
 for i, package in enumerate(packages):
-    version_tag = f"v0.1.{i+1}"
+    version_tag = f"v0.2.{i+1}"
 
     # 1. Update requirements.txt
     with open('requirements.txt', 'w') as req:
