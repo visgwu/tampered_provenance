@@ -1,1 +1,1 @@
-@ahmedhfarag/ngx-perfect-scrollbar@20.0.19
+@ahmedhfarag/ngx-virtual-scroller@4.0.3
