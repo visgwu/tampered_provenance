@@ -1,1 +1,1 @@
-@art-ws/openapi@0.1.12
+@art-ws/package-base@1.0.5
