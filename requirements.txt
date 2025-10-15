@@ -1,1 +1,1 @@
-@art-ws/package-base@1.0.5
+@art-ws/prettier@1.0.4
