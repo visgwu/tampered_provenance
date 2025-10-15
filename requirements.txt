@@ -1,1 +1,1 @@
-@art-ws/web-app@1.0.3
+@basic-ui-components-stc/basic-ui-components@1.0.4
